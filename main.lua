@@ -14,6 +14,10 @@ function love.load()
   board = newBoard(8, 9, 36, 352, 64)
 end
 
+function love.draw()
+  board:draw()
+end
+
 function love.mousemoved(x, y, dx, dy, istouch)
   local i, j = board:getPositionUnder(x, y)
   local stone = board:getStone(i, j)
@@ -31,15 +35,13 @@ function love.mousemoved(x, y, dx, dy, istouch)
 
   -- "unhover" the previously hovered stone
   if hovered.stone then
-    r, g, b = hovered.stone:getColor()
-    hovered.stone:setColor(r, g, b, 1.0)
+    hovered.stone:setColor(nil, nil, nil, 1.0)
     hovered.stone = nil
   end
 
   -- if there's a stone there, apply hover effect
   if stone then
-    r, g, b = stone:getColor()
-    stone:setColor(r, g, b, 0.75)
+    stone:setColor(nil, nil, nil, 0.75)
     hovered.stone = stone
   -- otherwise out of board, so release grabbed stone (if any)
   elseif grabbed.stone then
@@ -66,8 +68,4 @@ function love.mousereleased(x, y, button, istouch, presses)
     grabbed.stone = nil
     love.mouse.setCursor(CURSOR_ARROW)
   end
-end
-
-function love.draw()
-  board:draw()
 end
