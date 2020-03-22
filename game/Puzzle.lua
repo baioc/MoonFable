@@ -1,16 +1,17 @@
-Board = {
-  X = 36, Y = 353,
-  STONE_SIZE = 64,
-}
+Board = {}
 
-function newBoard()
+function newBoard(rows, columns, x, y, stoneSize)
   local self = {}
   setmetatable(self, Board)
   Board.__index = Board
 
-  self.rows = 8
-  self.columns = 9
+  self.rows = rows
+  self.columns = columns
+  self.x = x
+  self.y = y
+  self.stoneSize = stoneSize
 
+  -- construct 2D board
   self.stones = {}
   for i=1,self.rows do
     local row = {}
@@ -23,24 +24,32 @@ function newBoard()
   return self
 end
 
-function Board:getStoneAt(i, j)
+function Board:getStone(i, j) -- -> returns stone or nil if invalid indexes
   if i > 0 and i <= self.rows and j > 0 and j <= self.columns then
     return self.stones[i][j]
+  else
+    return nil
   end
 end
 
+function Board:swapStones(i, j, y, x)
+  self.stones[i][j], self.stones[y][x] = self.stones[y][x], self.stones[i][j]
+  -- @TODO: collapse board if match 3 or more
+end
+
+-- computes a pair of indexes mapping to the stone under given mouse position
 function Board:getPositionUnder(x, y)
-  local i = math.floor((y - Board.Y) / Board.STONE_SIZE) + 1
-  local j = math.floor((x - Board.X) / Board.STONE_SIZE) + 1
+  local i = math.floor((y - self.y) / self.stoneSize) + 1
+  local j = math.floor((x - self.x) / self.stoneSize) + 1
   return i, j
 end
 
 function Board:draw()
   for i=1,self.rows do
     for j=1,self.columns do
-      self.stones[i][j]:draw(Board.X + (j - 1) * Board.STONE_SIZE,
-                             Board.Y + (i - 1) * Board.STONE_SIZE,
-                             Board.STONE_SIZE)
+      self.stones[i][j]:draw(self.x + (j - 1) * self.stoneSize,
+                             self.y + (i - 1) * self.stoneSize,
+                             self.stoneSize)
     end
   end
 end
@@ -56,6 +65,7 @@ function newStone(type)
   Stone.__index = Stone
 
   self.color = {}
+  self.color.a = 1.0
   if type == 'attack' then
     self.color.r = 255
     self.color.g = 0
@@ -87,16 +97,18 @@ function Stone:getType()
 end
 
 function Stone:getColor()
-  return self.color.r, self.color.g, self.color.b
+  return self.color.r, self.color.g, self.color.b, self.color.a
 end
 
-function Stone:setColor(r, g, b)
+function Stone:setColor(r, g, b, ...) -- optional: alpha value
   self.color.r = r
   self.color.g = g
   self.color.b = b
+  local arg = {...}
+  self.color.a = arg[1] or self.color.a
 end
 
 function Stone:draw(x, y, size)
-  love.graphics.setColor(self.color.r, self.color.g, self.color.b)
+  love.graphics.setColor(self.color.r, self.color.g, self.color.b, self.color.a)
   love.graphics.rectangle('fill', x, y, size, size)
 end
