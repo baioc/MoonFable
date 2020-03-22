@@ -1,24 +1,20 @@
-Board = {}
+Board = {
+  X = 36, Y = 353,
+  STONE_SIZE = 64,
+}
 
-function newBoard(rows, columns)
+function newBoard()
   local self = {}
   setmetatable(self, Board)
   Board.__index = Board
 
-  if not (tonumber(rows) and rows > 0) then
-    error("invalid row number")
-  end
-  if not (tonumber(columns) and columns > 0) then
-    error("invalid column number")
-  end
-
-  self.rows = rows
-  self.columns = columns
+  self.rows = 8
+  self.columns = 9
 
   self.stones = {}
-  for i=1,rows do
+  for i=1,self.rows do
     local row = {}
-    for j=1,columns do
+    for j=1,self.columns do
       table.insert(row, newStone('random'))
     end
     table.insert(self.stones, row)
@@ -27,28 +23,24 @@ function newBoard(rows, columns)
   return self
 end
 
-function Board:getSize()
-  return self.rows, self.columns
+function Board:getStoneAt(i, j)
+  if i > 0 and i <= self.rows and j > 0 and j <= self.columns then
+    return self.stones[i][j]
+  end
 end
 
-function Board:getRows()
-  return self.rows
-end
-
-function Board:getColumns()
-  return self.columns
-end
-
-function Board:at(row, column)
-  return self.stones[row][column]
+function Board:getPositionUnder(x, y)
+  local i = math.floor((y - Board.Y) / Board.STONE_SIZE) + 1
+  local j = math.floor((x - Board.X) / Board.STONE_SIZE) + 1
+  return i, j
 end
 
 function Board:draw()
-  local x, y = 35, 286
-  local size = 50
   for i=1,self.rows do
     for j=1,self.columns do
-      self.stones[i][j]:draw(x + (j - 1) * size, y + (i - 1) * size, size)
+      self.stones[i][j]:draw(Board.X + (j - 1) * Board.STONE_SIZE,
+                             Board.Y + (i - 1) * Board.STONE_SIZE,
+                             Board.STONE_SIZE)
     end
   end
 end
@@ -92,6 +84,16 @@ end
 
 function Stone:getType()
   return self.type
+end
+
+function Stone:getColor()
+  return self.color.r, self.color.g, self.color.b
+end
+
+function Stone:setColor(r, g, b)
+  self.color.r = r
+  self.color.g = g
+  self.color.b = b
 end
 
 function Stone:draw(x, y, size)
