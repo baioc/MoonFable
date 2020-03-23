@@ -1,6 +1,9 @@
+require 'game/Stone'
+require 'game/Character'
+
 Board = {}
 
-function newBoard(rows, columns, x, y, stoneSize)
+function newBoard(rows, columns, x, y, player, enemy)
   local self = {}
   setmetatable(self, Board)
   Board.__index = Board
@@ -22,13 +25,17 @@ function newBoard(rows, columns, x, y, stoneSize)
   -- constants used for drawing
   self.x = x
   self.y = y
-  self.stoneSize = stoneSize
+  self.stoneSize = 64
 
   -- animation control
   self.locked = false
   self.time = 0.0
   self.animation = nil
   self.timestep = 0.0
+
+  -- reference to combatants
+  self.player = player
+  self.enemy = enemy
 
   return self
 end
@@ -61,44 +68,51 @@ end
 -- swaps stones and checks for any matches
 function Board:swapStones(i, j, y, x)
   self.stones[i][j], self.stones[y][x] = self.stones[y][x], self.stones[i][j]
+
   if not self.locked then
-    local matching = {}
+    local matching = {} -- set of positions to be collapsed
 
     local type1 = self.stones[i][j]:getType()
     local n1 = self:checkMatch(type1, self:absolutePosition(i, j), matching)
     local type2 = self.stones[y][x]:getType()
     local n2 = self:checkMatch(type2, self:absolutePosition(y, x), matching)
 
+    -- make the player act on match-driven command
+    local skills = {}
+    skills[type1] = n1 and n1 / 3
+    skills[type2] = n2 and n2 / 3
+    self.player:attack(self.enemy, skills)
+    self.enemy:attack(self.player)
+
     if not n1 and not n2 then
       return
     end
 
-    -- @TODO: what do we get by matching
-    if n1 then
-      print(type1 .. " -> " .. n1)
-    end
-    if n2 then
-      print(type2 .. " -> " .. n2)
-    end
-
-    -- collapse board accordingly
+    -- @TODO: sfx when "exploding" each stone
     for _, stone in pairs(matching) do
       stone:setColor(255, 255, 255)
     end
+
+    -- then begin animation (locks the board)
     self:animate(0.3, coroutine.create(function ()
+      -- @TODO: blinking effect
       for _, stone in pairs(matching) do
         stone:setType('gap')
       end
+
+      -- animate stones falling, one timestep per frame
       local moved = true
       repeat
-        coroutine.yield()
+        coroutine.yield() -- each yield corresponds to 1 animation frame
         moved = false
         for i = self.rows,1 , -1 do -- bottom-up
           for j = 1, self.columns do
             if self.stones[i][j]:getType() == 'gap' then
               if i == 1 then
+                -- @TODO: new stone sfx
                 self.stones[i][j]:setType('random')
               elseif self.stones[i-1][j]:getType() ~= 'gap' then
+                -- @TODO: falling stone sfx
                 self:swapStones(i, j, i-1, j)
               end
               moved = true
@@ -143,7 +157,7 @@ function Board:checkMatch(type, origin, matching)
                     visit(i + 1, j) -- try doing this in python
   until #queue < 1
 
-  -- must match 3 or more
+  -- must match 3 or more; if it's the case, concatenate into out parameter
   if n >= 3 then
     for k, v in pairs(match) do
       matching[k] = v
@@ -169,10 +183,12 @@ function Board:isLocked()
 end
 
 function Board:update(dt)
+  -- when locked, wait for a full timestep
   if self.locked then
     self.time = self.time + dt
     if self.time >= self.timestep then
       self.time = self.time - self.timestep
+      -- then resume the animation coroutine, unlocking when it finishes
       if not coroutine.resume(self.animation) then
         self.locked = false
       end
@@ -184,69 +200,4 @@ function Board:animate(dt, co)
   self.locked = true
   self.animation = co
   self.timestep = dt
-end
-
-
-Stone = {
-  types = {'attack', 'heal', 'magic', 'defend'},
-}
-
-function newStone(type)
-  local self = {}
-  setmetatable(self, Stone)
-  Stone.__index = Stone
-
-  self.color = {a = 1.0}
-  self:setType(type)
-
-  return self
-end
-
-function Stone:draw(x, y, size)
-  love.graphics.setColor(self.color.r, self.color.g, self.color.b, self.color.a)
-  love.graphics.rectangle('fill', x, y, size, size)
-end
-
-function Stone:getColor()
-  return self.color.r, self.color.g, self.color.b, self.color.a
-end
-
-function Stone:setColor(r, g, b, ...) -- optional alpha value
-  self.color.r = r or self.color.r
-  self.color.g = g or self.color.g
-  self.color.b = b or self.color.b
-  self.color.a = select(1, ...) or self.color.a
-end
-
-function Stone:getType()
-  return self.type
-end
-
-function Stone:setType(type)
-  if type == 'attack' then
-    self.color.r = 255
-    self.color.g = 0
-    self.color.b = 0
-  elseif type == 'heal' then
-    self.color.r = 0
-    self.color.g = 255
-    self.color.b = 0
-  elseif type == 'magic' then
-    self.color.r = 0
-    self.color.g = 0
-    self.color.b = 255
-  elseif type == 'defend' then
-    self.color.r = 255
-    self.color.g = 255
-    self.color.b = 0
-  elseif type == 'random' then
-    return self:setType(Stone.types[math.random(#Stone.types)])
-  elseif type == 'gap' then
-    self.color.r = 0
-    self.color.g = 0
-    self.color.b = 0
-  else
-    error("invalid Stone type " .. tostring(type))
-  end
-  self.type = type
 end
