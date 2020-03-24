@@ -1,7 +1,7 @@
 Scene = {}
 
-function newScene()
-  self = {}
+function newScene(t)
+  self = t or {}
   setmetatable(self, Scene)
   Scene.__index = Scene
   return self

@@ -17,20 +17,18 @@ i.exposition = ". . .\n" ..
                "\nWhat was your name, again?\n\n"
 
 function intro.start()
-  love.keyboard.setKeyRepeat(true)
   i.name = ""
   i.done = false
   i.char = 0
   i.time = 0.0
-  -- @FIXME: sync timestep to typing sfx
-  i.timestep = 0 -- 0.08
+  i.timestep = 0.08
   return intro
 end
 
 function intro.draw()
-  love.graphics.printf(string.sub(i.exposition, 1, i.char), 50, 100, 550/1.5, 'left', 0, 1.5, 1.5)
+  love.graphics.printf(string.sub(i.exposition, 1, i.char), 32, 64, 586/1.5, 'center', 0, 1.5, 1.5)
   if i.char >= #i.exposition then
-    love.graphics.printf("> " .. i.name .. " <", 0, 650, 650/1.5, 'center', 0, 1.5, 1.5)
+    love.graphics.printf("> " .. i.name .. " <", 0, 782, 650/1.5, 'center', 0, 1.5, 1.5)
   end
 end
 
@@ -48,7 +46,6 @@ end
 
 function keypress()
   -- @TODO: typing sfx
-  io.write('.'); io.flush()
 end
 
 function intro.keypressed(key)

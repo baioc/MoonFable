@@ -6,14 +6,28 @@ local Game = {
   scene = nil,
 }
 
+-- game over scene
+Game.over = newScene({
+  draw = function ()
+    love.graphics.printf(
+      "YOU DIED\nClick to restart",
+      0, 370, 650/4, 'center', 0, 4, 4)
+  end,
+  mousepressed = function(x, y, button)
+    if button == 1 then
+      Game.player = newPlayer(Game.player.name)
+      Game.scene = battle.start(Game.player, newEnemy('slime'))
+    end
+  end,
+})
+
 -- @TODO: outer map
 
 function love.load()
   math.randomseed(os.time())
-  -- @FIXME: start in intro
-  -- Game.scene = intro.start()
-  Game.player = newPlayer("Hero")
-  Game.scene = battle.start(Game.player, newEnemy('random'))
+  love.keyboard.setKeyRepeat(true)
+  love.graphics.setFont(love.graphics.newFont('data/fonts/NemoyBold.ttf'))
+  Game.scene = intro.start()
 end
 
 function love.draw()
@@ -27,10 +41,12 @@ function love.update(dt)
   -- when update returns, change scene accordingly
   if Game.scene == intro then
       Game.player = ret
-      Game.scene = battle.start(Game.player, newEnemy('random'))
+      Game.scene = battle.start(Game.player, newEnemy('slime'))
   elseif Game.scene == battle then
     if ret == Game.player then
       Game.scene = battle.start(Game.player, newEnemy('random'))
+    else
+      Game.scene = Game.over
     end
   end
 end

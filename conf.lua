@@ -9,4 +9,7 @@ function love.conf(t)
 
   t.window.resizable = false            -- Let the window be user-resizable (boolean)
   t.window.fullscreen = false           -- Enable fullscreen (boolean)
+
+  t.window.x = 0                        -- The x-coordinate of the window's position in the specified display (number)
+  t.window.y = 180                      -- The y-coordinate of the window's position in the specified display (number)
 end

@@ -91,7 +91,7 @@ function Board:swapStones(i, j, y, x)
     end
 
     -- then begin animation (locks the board)
-    self:animate(0.3, coroutine.create(function ()
+    self:animate(0.2, coroutine.create(function ()
       -- finish blinking effect
       for _, stone in pairs(matching) do
         stone:setType('gap')
