@@ -28,8 +28,6 @@ function Stone:setType(type)
     self.glow = 0.75
   elseif type == 'gap' then
     self.sprite = nil
-  else
-    error("invalid Stone type " .. tostring(type))
   end
   self.type = type
 end

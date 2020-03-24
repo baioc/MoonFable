@@ -79,7 +79,7 @@ function Board:swapStones(i, j, y, x)
     skills[type1] = n1 and n1 / 3
     skills[type2] = n2 and n2 / 3
     self.player:attack(self.enemy, skills)
-    self.enemy:attack(self.player)
+    if not self.enemy:isDead() then self.enemy:attack(self.player) end
 
     if not n1 and not n2 then
       return
@@ -192,4 +192,8 @@ function Board:animate(dt, co)
   self.locked = true
   self.animation = co
   self.timestep = dt
+end
+
+function Board:isLocked()
+  return self.locked
 end

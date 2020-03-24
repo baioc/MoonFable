@@ -1,20 +1,24 @@
 require 'game/Board'
 require 'game/Stone'
 require 'game/Characters'
+require 'game/Scene'
 
-battle = { -- constants
-  CURSOR_NORMAL = love.mouse.getSystemCursor('arrow'),
-  CURSOR_MOVE = love.mouse.getSystemCursor('sizeall'),
-  TREE = love.graphics.newImage('data/images/pine_tree.png'),
-}
-local b = battle -- shorter, local alias
+battle = newScene()
+-- shorter, local alias
+local b = battle
+-- constants
+b.CURSOR_NORMAL = love.mouse.getSystemCursor('arrow')
+b.CURSOR_MOVE = love.mouse.getSystemCursor('sizeall')
+b.TREE = love.graphics.newImage('data/images/pine_tree.png')
 
 function battle.start(player, enemy) -- set initial state
+  -- @TODO: starting animation, sounds, etc
   b.player = player
   b.enemy = enemy
   b.board = newBoard(8, 9, 36, 352, player, enemy)
   b.hovered = {stone = nil}
   b.grabbed = {stone = nil, i = nil, j = nil}
+  return battle
 end
 
 function battle.draw()
@@ -42,10 +46,17 @@ function battle.draw()
   b.enemy:draw(396, 32)
 end
 
-function battle.update(dt)
+function battle.update(dt) -- returns winner of battle if it finished
   b.board:update(dt)
   b.player:update(dt)
   b.enemy:update(dt)
+  if b.enemy:isDead() then
+    return b.player
+  elseif b.player:isDead() then
+    return b.enemy
+  else
+    return nil
+  end
 end
 
 function battle.mousemoved(x, y)
@@ -83,7 +94,7 @@ end
 
 function battle.mousepressed(x, y, button)
   -- if LB and board not locked, grab the stone under the mouse (if any)
-  if button == 1 then
+  if button == 1 and not b.board:isLocked() then
     local i, j = b.board:getPositionUnder(x, y)
     b.grabbed.stone = b.board:getStone(i, j)
     if b.grabbed.stone then
