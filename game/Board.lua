@@ -44,8 +44,7 @@ function Board:draw()
   for i = 1, self.rows do
     for j = 1, self.columns do
       self.stones[i][j]:draw(self.x + (j - 1) * self.stoneSize,
-                             self.y + (i - 1) * self.stoneSize,
-                             self.stoneSize)
+                             self.y + (i - 1) * self.stoneSize)
     end
   end
 end
@@ -90,16 +89,15 @@ function Board:swapStones(i, j, y, x)
 
     -- @TODO: sfx when "exploding" each stone
     for _, stone in pairs(matching) do
-      stone:setColor(255, 255, 255)
+      stone:setType('blink')
     end
 
     -- then begin animation (locks the board)
     self:animate(0.3, coroutine.create(function ()
-      -- @TODO: blinking effect
+      -- finish blinking effect
       for _, stone in pairs(matching) do
         stone:setType('gap')
       end
-
       -- animate stones falling, one timestep per frame
       local moved = true
       repeat
@@ -176,10 +174,6 @@ function Board:matrixIndexes(position)
   local j = (position - 1) % self.columns + 1
   local i = math.floor((position - 1) / self.columns) + 1
   return i, j
-end
-
-function Board:isLocked()
-  return self.locked
 end
 
 function Board:update(dt)

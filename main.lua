@@ -7,7 +7,6 @@ require 'game/Character'
 
 function love.load()
   math.randomseed(os.time())
-  battle.load()
   battle.start(newPlayer(100), newEnemy(100))
 end
 

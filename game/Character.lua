@@ -10,7 +10,7 @@ function newCharacter(health)
   self.hp = health
 
   -- constants used for drawing
-  -- @TODO: character spritesheets -> animations
+  -- @TODO: character sprites
   self.width = 200
   self.height = 200
   self.barSize = 20
