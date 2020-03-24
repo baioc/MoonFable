@@ -2,9 +2,9 @@ local utf8 = require("utf8")
 require 'game/Scene'
 require 'game/Characters'
 
-intro = newScene()
-local i = intro -- alias
-i.exposition = ". . .\n" ..
+intro = newScene({
+  -- exposition text, to be displayed painfully slowly. hehe
+  exposition = ". . .\n" ..
                "\nYour body feels six times heavier. Even though its dark, hot air moves around you. " ..
                "For some reason, the silent darkness of your home has been replaced by this noisy and bright strange world. " ..
                "You wonder if this is what death feels like...\n" ..
@@ -14,14 +14,19 @@ i.exposition = ". . .\n" ..
                "You gather up the fragments of your home, knowing they will help you find your way back.\n" ..
                "\nYour head starts spinning.\n" ..
                "\n. . .\n" ..
-               "\nWhat was your name, again?\n\n"
+               "\nWhat was your name, again?\n\n",
+  SFX_TYPE = love.audio.newSource('data/sounds/type.wav', 'static'),
+})
+local i = intro -- alias
 
 function intro.start()
+  -- username acquisition
   i.name = ""
   i.done = false
+  -- animation control
   i.char = 0
   i.time = 0.0
-  i.timestep = 0.08
+  i.timestep = 0.07
   return intro
 end
 
@@ -45,7 +50,9 @@ function intro.update(dt)
 end
 
 function keypress()
-  -- @TODO: typing sfx
+  i.SFX_TYPE:stop()
+  i.SFX_TYPE:play()
+  i.timestep = math.random(5, 9.6) / 100
 end
 
 function intro.keypressed(key)

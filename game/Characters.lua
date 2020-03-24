@@ -9,6 +9,7 @@ function newCharacter(name, health)
   self.name = name
   self.maxHp = health
   self.hp = health
+  self.damage = 10
 
   -- animation control
   self.sprite = nil
@@ -16,7 +17,7 @@ function newCharacter(name, health)
   self.timestep = 0.0
   self.alpha = 1.0
   self.countdown = 0
-  self.damage = 0
+  self.damageText = 0
 
   return self
 end
@@ -40,7 +41,7 @@ function Character:draw(x, y)
   -- draw damage
   if self.countdown > 0 then
     love.graphics.setColor(0.96, 0.68, 0)
-    love.graphics.print(self.damage, x + w/3, y - 40 + 10*self.countdown, 0, 3, 3)
+    love.graphics.print(self.damageText, x + w/3, y - 40 + 10*self.countdown, 0, 3, 3)
   end
 end
 
@@ -53,12 +54,9 @@ function Character:getHealthPercent()
 end
 
 function Character:takeDamage(damage)
-  -- @TODO: damage sfx
-  self.damage = tostring(damage)
+  self.damageText = tostring(damage)
   if damage > 0 then
-    -- apply life loss
     self.hp = math.max(self.hp - damage, 0)
-    -- start hit animation
     self.time = 0.0
     self.timestep = 0.1
     self.countdown = 8
@@ -91,16 +89,15 @@ function newPlayer(name)
 end
 
 function Player:attack(enemy, skills)
-  -- @TODO: player skills sfx
   for type, modifier in pairs(skills) do
     if type == 'heal' then
-      local heal = math.floor(10 * modifier)
+      local heal = math.floor(self.damage * modifier)
       self.hp = math.min(self.hp + heal, self.maxHp)
       self.heal = tostring(heal)
     elseif type == 'defend' then
       self.armour = (modifier / 10) + 0.2
     else
-      enemy:takeDamage(math.floor(10 * modifier))
+      enemy:takeDamage(math.floor(self.damage * modifier))
     end
   end
 end
@@ -133,30 +130,35 @@ Enemy.types = {'slime', 'owlbear', 'gorillaphant'}
 Enemy.monsters = {
   ['slime'] = {
     name = 'Slime',
-    health = 100,
-    sprite = love.graphics.newImage('data/images/slime.png')
+    health = 80,
+    sprite = love.graphics.newImage('data/images/slime.png'),
+    damage = 5,
   },
   ['owlbear'] = {
     name = 'Owlbear',
-    health = 200,
-    sprite = love.graphics.newImage('data/images/owlbear.png')
+    health = 150,
+    sprite = love.graphics.newImage('data/images/owlbear.png'),
+    damage = 10,
   },
   ['gorillaphant'] = {
     name = 'Gorillaphant',
-    health = 400,
-    sprite = love.graphics.newImage('data/images/gorillaphant.png')
+    health = 300,
+    sprite = love.graphics.newImage('data/images/gorillaphant.png'),
+    damage = 15,
   },
 }
 
 function newEnemy(type)
   if type == 'random' then type = Enemy.types[math.random(#Enemy.types)] end
-  local self = newCharacter(Enemy.monsters[type].name, Enemy.monsters[type].health)
+  local monster = Enemy.monsters[type]
+  local self = newCharacter(monster.name, monster.health)
   setmetatable(self, Enemy)
   Enemy.__index = Enemy
-  self.sprite = Enemy.monsters[type].sprite
+  self.sprite = monster.sprite
+  self.damage = monster.damage
   return self
 end
 
 function Enemy:attack(target)
-  target:takeDamage(10)
+  target:takeDamage(self.damage)
 end

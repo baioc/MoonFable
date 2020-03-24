@@ -3,16 +3,15 @@ require 'game/Stone'
 require 'game/Characters'
 require 'game/Scene'
 
-battle = newScene()
--- shorter, local alias
-local b = battle
--- constants
-b.CURSOR_NORMAL = love.mouse.getSystemCursor('arrow')
-b.CURSOR_MOVE = love.mouse.getSystemCursor('sizeall')
-b.TREE = love.graphics.newImage('data/images/pine_tree.png')
+battle = newScene({ -- constants
+  CURSOR_NORMAL = love.mouse.getSystemCursor('arrow'),
+  CURSOR_MOVE = love.mouse.getSystemCursor('sizeall'),
+  TREE = love.graphics.newImage('data/images/pine_tree.png'),
+  SFX_SWAP = love.audio.newSource('data/sounds/swap.wav', 'static'),
+})
+local b = battle -- shorter, local alias
 
 function battle.start(player, enemy) -- set initial state
-  -- @TODO: starting animation, sounds, etc
   b.player = player
   b.enemy = enemy
   b.board = newBoard(8, 9, 36, 352, player, enemy)
@@ -68,6 +67,8 @@ function battle.mousemoved(x, y)
   if love.mouse.isDown(1) and b.grabbed.stone and stone and b.grabbed.stone ~= stone then
     -- stones must be side by side <-> Manhattan distance of 1
     if math.abs(b.grabbed.i - i) + math.abs(b.grabbed.j - j) == 1 then
+      b.SFX_SWAP:stop()
+      b.SFX_SWAP:play()
       b.board:swapStones(i, j, b.grabbed.i, b.grabbed.j)
       stone = b.board:getStone(i, j)
     end

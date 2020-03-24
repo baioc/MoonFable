@@ -1,7 +1,10 @@
 require 'game/Stone'
 require 'game/Characters'
 
-Board = {}
+Board = {
+  SFX_MATCH = love.audio.newSource('data/sounds/match.wav', 'static'),
+  SFX_FALL = love.audio.newSource('data/sounds/fall.wav', 'static'),
+}
 
 function newBoard(rows, columns, x, y, player, enemy)
   local self = {}
@@ -85,7 +88,9 @@ function Board:swapStones(i, j, y, x)
       return
     end
 
-    -- @TODO: sfx when "exploding" each stone
+    -- stone "explosion" effect
+    Board.SFX_MATCH:stop()
+    Board.SFX_MATCH:play()
     for _, stone in pairs(matching) do
       stone:setType('blink')
     end
@@ -105,10 +110,10 @@ function Board:swapStones(i, j, y, x)
           for j = 1, self.columns do
             if self.stones[i][j]:getType() == 'gap' then
               if i == 1 then
-                -- @TODO: new stone sfx
+                Board.SFX_FALL:stop()
+                Board.SFX_FALL:play()
                 self.stones[i][j]:setType('random')
               elseif self.stones[i-1][j]:getType() ~= 'gap' then
-                -- @TODO: falling stone sfx
                 self:swapStones(i, j, i-1, j)
               end
               moved = true

@@ -24,9 +24,12 @@ Game.over = newScene({
 -- @TODO: outer map
 
 function love.load()
+  -- setup love2d stuff
   math.randomseed(os.time())
   love.keyboard.setKeyRepeat(true)
   love.graphics.setFont(love.graphics.newFont('data/fonts/NemoyBold.ttf'))
+  love.audio.setVolume(0.01)
+  -- start at initial level
   Game.scene = intro.start()
 end
 
