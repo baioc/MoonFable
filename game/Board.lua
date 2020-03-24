@@ -1,5 +1,5 @@
 require 'game/Stone'
-require 'game/Character'
+require 'game/Characters'
 
 Board = {}
 
@@ -25,7 +25,6 @@ function newBoard(rows, columns, x, y, player, enemy)
   -- constants used for drawing
   self.x = x
   self.y = y
-  self.stoneSize = 64
 
   -- animation control
   self.locked = false
@@ -43,8 +42,7 @@ end
 function Board:draw()
   for i = 1, self.rows do
     for j = 1, self.columns do
-      self.stones[i][j]:draw(self.x + (j - 1) * self.stoneSize,
-                             self.y + (i - 1) * self.stoneSize)
+      self.stones[i][j]:draw(self.x + (j - 1) * 64, self.y + (i - 1) * 64)
     end
   end
 end
@@ -59,8 +57,8 @@ end
 
 -- computes a pair of indexes mapping to the stone under given mouse position
 function Board:getPositionUnder(x, y)
-  local i = math.floor((y - self.y) / self.stoneSize) + 1
-  local j = math.floor((x - self.x) / self.stoneSize) + 1
+  local i = math.floor((y - self.y) / 64) + 1
+  local j = math.floor((x - self.x) / 64) + 1
   return i, j
 end
 

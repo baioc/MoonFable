@@ -9,31 +9,18 @@ function newCharacter(health)
   self.maxHp = health
   self.hp = health
 
-  -- constants used for drawing
-  -- @TODO: character sprites
-  self.width = 200
-  self.height = 200
-  self.barSize = 20
-  self.gap = 2
-
   return self
 end
 
 function Character:draw(x, y)
-  love.graphics.setColor(15, 15, 15)
-  love.graphics.rectangle('line', x, y, self.width, self.barSize)
-  love.graphics.setColor(255, 0, 0)
-  love.graphics.rectangle('fill',
-                          x + self.gap,
-                          y + self.gap,
-                          (self.width - 2*self.gap) * self:getHealthPercent(),
-                          self.barSize - 2*self.gap)
-  love.graphics.setColor(255, 0, 255)
-  love.graphics.rectangle('fill',
-                          x,
-                          y + self.barSize,
-                          self.width,
-                          self.height - self.barSize)
+  if not self.sprite then error("missing character sprite") end
+  local w, _ = self.sprite:getDimensions()
+  love.graphics.setColor(0.66, 0.66, 0.66)
+  love.graphics.rectangle('fill', x, y, w, 20)
+  love.graphics.setColor(0.8, 0, 0)
+  love.graphics.rectangle('fill', x + 2, y + 2, (w - 4) * self:getHealthPercent(), 16)
+  love.graphics.setColor(1, 1, 1)
+  love.graphics.draw(self.sprite, x, y + 20)
 end
 
 function Character:getHealthPercent()
@@ -46,13 +33,15 @@ end
 
 
 Player = newCharacter()
+Player.sprite = love.graphics.newImage('data/images/elemental.png')
 
 function newPlayer(health)
   local self = newCharacter(health)
   setmetatable(self, Player)
   Player.__index = Player
-  self.width = 150
-  self.height = 200
+
+  self.sprite = Player.sprite
+
   return self
 end
 
@@ -70,13 +59,25 @@ end
 
 
 Enemy = newCharacter()
+Enemy.monsters = {
+  ['slime'] = {
+    sprite = love.graphics.newImage('data/images/slime.png')
+  },
+  ['owlbear'] = {
+    sprite = love.graphics.newImage('data/images/owlbear.png')
+  },
+  ['gorillaphant'] = {
+    sprite = love.graphics.newImage('data/images/gorillaphant.png')
+  },
+}
 
-function newEnemy(health)
+function newEnemy(type, health)
   local self = newCharacter(health)
   setmetatable(self, Enemy)
   Enemy.__index = Enemy
-  self.width = 200
-  self.height = 250
+
+  self.sprite = Enemy.monsters[type].sprite
+
   return self
 end
 

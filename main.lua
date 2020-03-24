@@ -1,5 +1,5 @@
 require 'game/battle'
-require 'game/Character'
+require 'game/Characters'
 
 -- @TODO: outer map
 -- @TODO: scene change
@@ -7,7 +7,7 @@ require 'game/Character'
 
 function love.load()
   math.randomseed(os.time())
-  battle.start(newPlayer(100), newEnemy(100))
+  battle.start(newPlayer(100), newEnemy('owlbear', 100))
 end
 
 function love.draw()

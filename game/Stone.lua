@@ -40,10 +40,10 @@ end
 
 function Stone:draw(x, y)
   if self.sprite then
-    love.graphics.setColor(255, 255, 255, 1.0)
+    love.graphics.setColor(1, 1, 1)
     love.graphics.draw(self.sprite, x, y)
     if self.glow > 0 then
-      love.graphics.setColor(255, 255, 255, self.glow)
+      love.graphics.setColor(1, 1, 1, self.glow)
       love.graphics.rectangle('fill', x, y, 64, 64)
     end
   end

@@ -1,15 +1,15 @@
 require 'game/Board'
 require 'game/Stone'
-require 'game/Character'
+require 'game/Characters'
 
 battle = { -- constants
   CURSOR_NORMAL = love.mouse.getSystemCursor('arrow'),
   CURSOR_MOVE = love.mouse.getSystemCursor('sizeall'),
+  TREE = love.graphics.newImage('data/images/pine_tree.png'),
 }
 local b = battle -- shorter, local alias
 
 function battle.start(player, enemy) -- set initial state
-  -- @TODO: starting animation: graphics and sounds
   b.player = player
   b.enemy = enemy
   b.board = newBoard(8, 9, 36, 352, player, enemy)
@@ -18,8 +18,27 @@ function battle.start(player, enemy) -- set initial state
 end
 
 function battle.draw()
+  love.graphics.setColor(0.14, 0.09, 0.32)
+  love.graphics.rectangle('fill', 0, 0, 650, 150)
+  love.graphics.setColor(0.25, 0.51, 0.27)
+  love.graphics.rectangle('fill', 0, 150, 650, 172)
+  love.graphics.setColor(1, 1, 1)
+  love.graphics.draw(b.TREE, 0, 8, 0, 0.5, 0.5)
+  love.graphics.draw(b.TREE, 60, 12, 0, 0.5, 0.6)
+  love.graphics.draw(b.TREE, 150, 18, 0, 0.5, 0.55)
+  love.graphics.draw(b.TREE, 250, 8, 0, 0.5, 0.5)
+  love.graphics.draw(b.TREE, 320, 20, 0, 0.5, 0.5)
+  love.graphics.draw(b.TREE, 420, 16, 0, 0.4, 0.4)
+  love.graphics.draw(b.TREE, 520, 16, 0, 0.4, 0.4)
+  love.graphics.draw(b.TREE, 580, 18, 0, 0.5, 0.5)
+  --
+  love.graphics.setColor(0.98, 0.83, 0.11)
+  love.graphics.rectangle('fill', 0, 322, 650, 578)
+  love.graphics.setColor(0.93, 0.69, 0)
+  love.graphics.rectangle('fill', 20, 342, 610, 538)
   b.board:draw()
-  b.player:draw(52, 84)
+  --
+  b.player:draw(64, 84)
   b.enemy:draw(396, 32)
 end
 
